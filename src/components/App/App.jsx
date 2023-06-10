@@ -3,15 +3,20 @@ import { UserForm } from '../Form/Form';
 import { Contacts } from '../Contacts/Contacts';
 import { Filter } from '../Filter/Filter';
 import { PhonebookWrapper } from '../Form/Form.styled';
+import { useDispatch, useSelector } from 'react-redux';
+import { setContact, addContact, deleteContact } from 'redux/slices/contactSlice';
+
+
 
 function App() {
-  const [contacts, setContacts] = useState([]);
+  const contacts = useSelector(state => state.contacts.contacts);
+  console.log(contacts);
+  const dispatch = useDispatch();
   const [filter, setFilter] = useState('');
   const formattedFilter = filter.toLowerCase();
   const filteredContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(formattedFilter)
   );
-
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts]);
@@ -19,41 +24,34 @@ function App() {
   useEffect(() => {
     const contacts = localStorage.getItem('contacts');
     const parsedContacts = JSON.parse(contacts);
+    console.log(contacts);
     if (parsedContacts) {
-      setContacts(parsedContacts);
+      dispatch(setContact(parsedContacts));
     }
-  }, []);
+  }, [dispatch]);
 
-  const addContact = data => {
-    console.log(data);
-
-    if (contacts.find(contact => contact.name === data.name)) {
-      return alert(`${data.name} is already in contacts.`);
-    }
-
-    setContacts(prevContacts => [...prevContacts, data]);
+  const attachContact = data => {
+    dispatch(addContact(data));
   };
 
   const changeFilter = event => {
     setFilter(event.currentTarget.value);
   };
 
-  const deleteContact = id => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
+  const removeContact = id => {
+    dispatch(deleteContact(id));
   };
 
   return (
     <PhonebookWrapper>
       <h1>Phonebook</h1>
-      <UserForm getData={addContact} />
+      <UserForm getData={attachContact} />
       <h2>Find contact by name</h2>
       <Filter value={filter} filterChange={changeFilter} />
       {contacts.length === 0 ? (
         <p>You don't have contacts </p>
       ) : (
-        <Contacts data={filteredContacts} deleteContact={deleteContact} />
+        <Contacts data={filteredContacts} deleteContact={removeContact} />
       )}
     </PhonebookWrapper>
   );
