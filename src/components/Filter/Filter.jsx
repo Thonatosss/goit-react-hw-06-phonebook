@@ -1,15 +1,20 @@
-import PropTypes from 'prop-types';
-import { FilterInput } from "components/Form/Form.styled";
 
-const Filter = ({ value, filterChange }) => {
+import { FilterInput } from "components/Form/Form.styled";
+import { setFilter } from 'redux/slices/filterSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { filterSelector } from 'redux/selectors/filterSelector';
+
+
+const Filter = () => {
+  const dispatch = useDispatch();
+  const filter = useSelector(filterSelector);
+  const changeFilter = event => {
+    dispatch(setFilter(event.target.value))
+  };
   return (
-      <FilterInput type="text" value={value} onChange={filterChange} />
+      <FilterInput type="text" value={filter} onChange={changeFilter} />
   );
 };
 
 
-Filter.propTypes = {
-  value: PropTypes.string.isRequired,
-  filterChange: PropTypes.func.isRequired,
-};
 export { Filter };
